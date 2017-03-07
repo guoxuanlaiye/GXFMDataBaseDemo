@@ -7,6 +7,7 @@
 //
 
 #import "ViewController.h"
+#import "GXFMDatabaseManager.h"
 
 @interface ViewController ()
 
@@ -16,7 +17,15 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    NSDictionary * personData = @{@"userId":@"100000688",
+                                  @"name":@"hole",
+                                  @"avatar":@"/avatar/1.png",
+                                  @"phone":@"18842878603"};
+    [[GXFMDatabaseManager shareDBManager] savePersonDataWithDict:personData userId:@"100000688"];
+    
+    NSString * path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"database.db"];
+    NSLog(@"DB路径 ====== %@",path);
 }
 
 
