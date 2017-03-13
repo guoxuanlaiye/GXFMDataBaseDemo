@@ -10,8 +10,7 @@
 
 @implementation GXFMDatabaseHelper
 #pragma mark - 创建一个唯一的FMDB队列
-+ (FMDatabaseQueue *)getSharedDatabaseQueue
-{
++ (FMDatabaseQueue *)getSharedDatabaseQueue {
     static FMDatabaseQueue * my_FMDatabaseQueue = nil;
     if (!my_FMDatabaseQueue) {
         NSString * path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"database.db"];
@@ -35,7 +34,7 @@ static NSInteger dbVersionFlg = 1;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instanceManager = [[GXFMDatabaseManager alloc]init];
-        //建表
+        
         [instanceManager initDBManager];
     });
     return instanceManager;

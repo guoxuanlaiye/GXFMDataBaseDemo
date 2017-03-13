@@ -26,6 +26,7 @@
     
     NSString * path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"database.db"];
     NSLog(@"DB路径 ====== %@",path);
+    
 }
 
 

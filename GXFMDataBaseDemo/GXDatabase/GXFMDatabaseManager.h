@@ -14,6 +14,7 @@
 @end
 
 @interface GXFMDatabaseManager : NSObject
+
 + (GXFMDatabaseManager *)shareDBManager;
 //保存或更新当前用户信息
 - (void)savePersonDataWithDict:(NSDictionary *)dict userId:(NSString *)userId;
