@@ -22,6 +22,7 @@
                                   @"name":@"hole",
                                   @"avatar":@"/avatar/1.png",
                                   @"phone":@"18842878603"};
+    [[GXFMDatabaseManager shareDBManager] createPersonTable];
     [[GXFMDatabaseManager shareDBManager] savePersonDataWithDict:personData userId:@"100000688"];
     
     NSString * path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"database.db"];

@@ -62,8 +62,8 @@ static NSInteger dbVersionFlg = 1;
                     //重新创建 db文件
                     NSString * path = [[NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) lastObject] stringByAppendingPathComponent:@"database.db"];
                     self.queue = [FMDatabaseQueue databaseQueueWithPath:path];
-                    //建表
-                    [self createTable];
+                    //建version表
+                    [self createVersionTable];
                     //存版本号
                     [self setDBInfoValueWithString:[NSString stringWithFormat:@"%ld",dbVersionFlg]];
                 }
@@ -75,8 +75,8 @@ static NSInteger dbVersionFlg = 1;
 
         //队列初始化并创建数据库
         self.queue = [GXFMDatabaseHelper getSharedDatabaseQueue];
-        //建表
-        [self createTable];
+        //建version表
+        [self createVersionTable];
         //存版本号
         [self setDBInfoValueWithString:[NSString stringWithFormat:@"%ld",dbVersionFlg]];
     }
@@ -96,15 +96,15 @@ static NSInteger dbVersionFlg = 1;
     NSLog(@"----- 存储版本号 -----");
 
     [self.queue inDatabase:^(FMDatabase *db) {
-        NSString * sq = [NSString stringWithFormat:@"SELECT * FROM t_info WHERE version = '%@';",string];
+        NSString * sq = [NSString stringWithFormat:@"select * from t_info where version = '%@';",string];
         FMResultSet * s = [db executeQuery:sq];
         //没存在，插入
         if (![s next]) {
             
-            [db executeUpdateWithFormat:@"INSERT INTO t_info(version) VALUES(%@);",string];
+            [db executeUpdateWithFormat:@"insert into t_info(version) values(%@);",string];
             
         } else {
-            [db executeUpdateWithFormat:@"UPDATE t_info SET version = '%@';",string];
+            [db executeUpdateWithFormat:@"update t_info set version = '%@';",string];
             
         }
         [s close];
@@ -113,11 +113,10 @@ static NSInteger dbVersionFlg = 1;
 #pragma mark - 读取DB中的版本信息
 - (NSString *)getDBInfoValue {
     
-    
     __block NSString * version = nil;
     [self.queue inDatabase:^(FMDatabase *db) {
         
-        NSString * sql = @"SELECT * FROM t_info";
+        NSString * sql = @"select * from t_info";
         FMResultSet * set = [db executeQuery:sql];
         
         while ([set next]) {
@@ -128,16 +127,19 @@ static NSInteger dbVersionFlg = 1;
     }];
     return version;
 }
-#pragma mark - 创建DB表
-- (void)createTable {
-    
-    NSLog(@"----- 创建表 -----");
+#pragma mark - 创建person表
+- (void)createPersonTable {
+    NSLog(@"----- 创建persion表 -----");
+    [self.queue inDatabase:^(FMDatabase *db) { //userId作为主键
+        [db executeUpdate:@"create table if not exists t_person (userId text PRIMARY KEY,name text,avatar text,phone text);"];
+    }];
+}
+#pragma mark - 创建version表
+- (void)createVersionTable {
+    NSLog(@"----- 创建version表 -----");
     [self.queue inDatabase:^(FMDatabase *db) {
         //版本号表
-        [db executeUpdate:@"CREATE TABLE IF NOT EXISTS t_info (version text);"];
-        //个人信息表
-        [db executeUpdate:@"CREATE TABLE IF NOT EXISTS t_person (userId text PRIMARY KEY,name text,avatar text,phone text);"];
-
+        [db executeUpdate:@"create table if not exists t_info (version text);"];
     }];
 }
 #pragma mark - Public 保存或更新当前用户信息
@@ -149,6 +151,7 @@ static NSInteger dbVersionFlg = 1;
         FMResultSet * set = [db executeQuery:sql];
         if (![set next]) {
             //没存在，插入
+            NSLog(@"----- insert +++++");
             [db executeUpdateWithFormat:
              @"INSERT INTO t_person (userId,name,avatar,phone) VALUES (%@,%@,%@,%@);",
              dict[@"userId"],
@@ -157,6 +160,7 @@ static NSInteger dbVersionFlg = 1;
              dict[@"phone"]];
         } else {
             //存在，刷新
+            NSLog(@"----- update +++++");
             [db executeUpdateWithFormat:@"UPDATE t_person SET userId = '%@',name = '%@',avatar = '%@',phone = '%@' WHERE userId = '%@';",
              dict[@"userId"],
              dict[@"name"],
